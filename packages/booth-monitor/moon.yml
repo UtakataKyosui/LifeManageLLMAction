@@ -1,0 +1,37 @@
+# https://moonrepo.dev/docs/config/project
+$schema: 'https://moonrepo.dev/schemas/project.json'
+
+type: 'library'
+language: 'typescript'
+
+tasks:
+  build:
+    command: 'tsc'
+    inputs:
+      - 'src/**/*'
+      - 'tsconfig.json'
+    outputs:
+      - 'dist'
+
+  test:
+    command: 'vitest run'
+    inputs:
+      - 'src/**/*'
+      - 'tests/**/*'
+      - 'vitest.config.ts'
+
+  test:watch:
+    command: 'vitest'
+    local: true
+
+  test:coverage:
+    command: 'vitest run --coverage'
+    inputs:
+      - 'src/**/*'
+      - 'tests/**/*'
+
+  lint:
+    command: 'eslint src --fix'
+    inputs:
+      - 'src/**/*'
+      - '.eslintrc.js'
