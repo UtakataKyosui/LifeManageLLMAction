@@ -10,8 +10,10 @@ export class GmailClient {
             throw new Error('GOOGLE_SERVICE_ACCOUNT_KEY is not set');
         }
 
-        const auth = google.auth.fromJSON(JSON.parse(serviceAccountKey));
-        // @ts-expect-error auth type mismatch
+        const auth = new google.auth.GoogleAuth({
+            credentials: JSON.parse(serviceAccountKey),
+            scopes: ['https://www.googleapis.com/auth/gmail.modify'],
+        });
         this.gmail = google.gmail({ version: 'v1', auth });
     }
 

@@ -26,8 +26,10 @@ export class CalendarClient {
             );
         }
 
-        const auth = google.auth.fromJSON(JSON.parse(serviceAccountKey));
-        // @ts-expect-error auth type mismatch in googleapis, but this works
+        const auth = new google.auth.GoogleAuth({
+            credentials: JSON.parse(serviceAccountKey),
+            scopes: ['https://www.googleapis.com/auth/calendar'],
+        });
         this.calendar = google.calendar({ version: 'v3', auth });
         this.calendarId = calendarId;
     }

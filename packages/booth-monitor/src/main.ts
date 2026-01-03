@@ -21,12 +21,50 @@ async function run(): Promise<void> {
 
         core.info('🚀 Starting BOOTH Monitor...');
 
-        // 1. Gmailから新着メールを検索
-        const gmailClient = new GmailClient();
-        const messages = await gmailClient.searchBoothEmails();
-        core.info(`📧 Found ${messages.length} unread BOOTH emails`);
+        // Debug: Check if keys are present (masked)
+        if (process.env.GOOGLE_SERVICE_ACCOUNT_KEY) {
+            core.info('🔑 GOOGLE_SERVICE_ACCOUNT_KEY is set');
+            try {
+                const key = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_KEY);
+                core.info(`   Project ID: ${key.project_id}`);
+                core.info(`   Client Email: ${key.client_email}`);
+            } catch (e) {
+                core.error('❌ Failed to parse GOOGLE_SERVICE_ACCOUNT_KEY JSON');
+            }
+        } else {
+            core.error('❌ GOOGLE_SERVICE_ACCOUNT_KEY is NOT set');
+        }
 
-        const calendarClient = new CalendarClient();
+        // 1. Gmail Initialization
+        let gmailClient;
+        try {
+            core.info('🔹 Initializing Gmail Client...');
+            gmailClient = new GmailClient();
+            core.info('   Gmail Client initialized.');
+        } catch (error) {
+            throw new Error(`Failed to initialize Gmail Client: ${error}`);
+        }
+
+        // 2. Gmail Search
+        let messages;
+        try {
+            core.info('🔹 Searching Gmail...');
+            messages = await gmailClient.searchBoothEmails();
+            core.info(`📧 Found ${messages.length} unread BOOTH emails`);
+        } catch (error) {
+            // @ts-expect-error error typing
+            throw new Error(`Failed to search Gmail: ${error.message || error}`);
+        }
+
+        // 3. Calendar Initialization
+        let calendarClient;
+        try {
+            core.info('🔹 Initializing Calendar Client...');
+            calendarClient = new CalendarClient();
+            core.info('   Calendar Client initialized.');
+        } catch (error) {
+            throw new Error(`Failed to initialize Calendar Client: ${error}`);
+        }
 
         // 2. メールからURLを抽出して処理
         for (const message of messages) {
