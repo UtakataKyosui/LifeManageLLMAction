@@ -6,7 +6,7 @@ language: 'typescript'
 
 tasks:
   build:
-    command: 'tsc'
+    command: 'npx tsc'
     inputs:
       - 'src/**/*'
       - 'tsconfig.json'
@@ -20,11 +20,14 @@ tasks:
       - 'tests/**/*'
       - 'vitest.config.ts'
 
-  test:watch:
+  test-watch:
     command: 'vitest'
     local: true
+    inputs:
+      - 'src/**/*'
+      - 'tests/**/*'
 
-  test:coverage:
+  test-coverage:
     command: 'vitest run --coverage'
     inputs:
       - 'src/**/*'
