@@ -65,29 +65,6 @@ BOOTH_KEYWORDS=音成モカ,オトナリモカ
 3. 「カレンダーの統合」セクションの「カレンダーID」をコピー
 4. サービスアカウントのメールアドレスをカレンダーに共有（編集権限）
 
-### 2. LINE Messaging API
-
-#### チャネルの作成
-
-1. [LINE Developers](https://developers.line.biz/)にアクセス
-2. プロバイダーを作成（既存のものを使用可）
-3. 「新規チャネル作成」→「Messaging API」
-4. チャネル情報を入力して作成
-
-#### Channel Access Tokenの取得
-
-1. 作成したチャネルの「Messaging API設定」タブ
-2. 「Channel access token」セクションで「発行」をクリック
-3. トークンをコピーして`LINE_CHANNEL_ACCESS_TOKEN`に設定
-
-#### User IDの取得
-
-**方法1: LINE Official Account Managerから**
-1. チャネルのQRコードを読み取って友だち追加
-2. 自分のアカウントから何かメッセージを送信
-3. Webhook URLを設定してイベントログからUser IDを取得
-
-**方法2: 簡易的な方法**
 ```bash
 # 自分にテストメッセージを送信してUser IDを確認
 # まず、自分のUser IDを推測して送信してみる

@@ -3,7 +3,7 @@ import { GmailClient } from './gmail/client';
 import { scrapeProductInfo } from './booth/scraper';
 import { filterByShopName, filterByKeyword } from './booth/filter';
 import { CalendarClient } from './calendar/client';
-import { sendNotification } from './line/client';
+import { sendNotification } from './discord/client';
 import {
     calculateNotificationTimes,
     shouldNotify,
@@ -133,7 +133,7 @@ async function run(): Promise<void> {
                         }
                     };
 
-                    core.info(`    📲 Sending notification for: ${productMock.title} (${timing.type})`);
+                    core.info(`    📲 Sending Discord notification for: ${productMock.title} (${timing.type})`);
                     await sendNotification(productMock, timing.type);
                 }
             }
