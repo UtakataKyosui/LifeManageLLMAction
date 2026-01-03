@@ -93,31 +93,33 @@ async function run(): Promise<void> {
                     // 4. カレンダー登録/更新
                     const existingEvent = await calendarClient.searchEventByUrl(url);
 
-                    if (existingEvent) {
-                        core.info('    📅 Event already exists, updating...');
-                        if (existingEvent.id) {
-                            await calendarClient.updateEvent(existingEvent.id, {
-                                summary: `[BOOTH] ${product.title}`,
-                                description: `出品者: ${product.shopName}\nURL: ${product.url}`,
-                                start: { dateTime: product.purchasePeriod.start },
-                                end: { dateTime: product.purchasePeriod.end },
-                            });
-                        }
-                    } else {
-                        core.info('    📅 Creating new calendar event...');
-                        await calendarClient.createEvent({
-                            summary: `[BOOTH] ${product.title}`,
-                            description: `出品者: ${product.shopName}\nURL: ${product.url}`,
-                            start: { dateTime: product.purchasePeriod.start },
-                            end: { dateTime: product.purchasePeriod.end },
-                            extendedProperties: {
-                                private: {
-                                    boothUrl: url,
-                                    shopName: product.shopName,
-                                },
-                            },
-                        });
-                    }
+                    // const existingEvent = await calendarClient.searchEventByUrl(url);
+
+                    // if (existingEvent) {
+                    //     core.info('    📅 Event already exists, updating...');
+                    //     if (existingEvent.id) {
+                    //         await calendarClient.updateEvent(existingEvent.id, {
+                    //             summary: `[BOOTH] ${product.title}`,
+                    //             description: `出品者: ${product.shopName}\nURL: ${product.url}`,
+                    //             start: { dateTime: product.purchasePeriod.start },
+                    //             end: { dateTime: product.purchasePeriod.end },
+                    //         });
+                    //     }
+                    // } else {
+                    //     core.info('    📅 Creating new calendar event...');
+                    //     await calendarClient.createEvent({
+                    //         summary: `[BOOTH] ${product.title}`,
+                    //         description: `出品者: ${product.shopName}\nURL: ${product.url}`,
+                    //         start: { dateTime: product.purchasePeriod.start },
+                    //         end: { dateTime: product.purchasePeriod.end },
+                    //         extendedProperties: {
+                    //             private: {
+                    //                 boothUrl: url,
+                    //                 shopName: product.shopName,
+                    //             },
+                    //         },
+                    //     });
+                    // }
                 }
 
                 // メールを既読にする
