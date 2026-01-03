@@ -1,10 +1,10 @@
 # LifeManageLLMAction
 
-BOOTHの新着商品を自動監視し、購入期間をGoogleカレンダーに登録、終了前にLINE通知するシステムです。
+BOOTHの新着商品を自動監視し、購入期間をGoogleカレンダーに登録、終了前にDiscord通知するシステムです。
 
 ## 📋 概要
 
-このプロジェクトは、BOOTH出品者の新着商品情報をGmailから取得し、購入期間をGoogleカレンダーに自動登録します。購入期限が近づくとLINEで通知を送信します。
+このプロジェクトは、BOOTH出品者の新着商品情報をGmailから取得し、購入期間をGoogleカレンダーに自動登録します。購入期限が近づくとDiscord Webhookで通知を送信します。
 
 ### 主な機能
 
@@ -12,7 +12,7 @@ BOOTHの新着商品を自動監視し、購入期間をGoogleカレンダーに
 - 🔍 出品者名・キーワードによるフィルタリング
 - 🌐 Playwrightによる商品ページスクレイピング
 - 📅 Googleカレンダーへの購入期間自動登録
-- 🔔 LINE Messaging APIによる期限通知（1日前/12時間前/3時間前/1時間前）
+- 🔔 Discord Webhookによる期限通知（1日前/12時間前/3時間前/1時間前）
 - ⏰ GitHub Actionsで1時間ごとに自動実行
 
 ## 🏗️ システムアーキテクチャ
@@ -23,7 +23,7 @@ sequenceDiagram
     participant Gmail as Gmail API
     participant BOOTH as BOOTH Website
     participant GCal as Google Calendar
-    participant LINE as LINE Messaging API
+    participant Discord as Discord Webhook
     
     Note over GHA: 1時間ごとに実行
     GHA->>Gmail: 新着BOOTHメールを検索
@@ -39,7 +39,7 @@ sequenceDiagram
     
     GHA->>GCal: 既存イベント確認
     loop 通知対象イベント
-        GHA->>LINE: 通知送信
+        GHA->>Discord: 通知送信 (Embed)
     end
 ```
 
@@ -51,7 +51,6 @@ sequenceDiagram
 - **モノレポ管理**: [moonrepo](https://moonrepo.dev/)
 - **バージョン管理**: [proto](https://moonrepo.dev/proto)
 - **テストフレームワーク**: Vitest
-- **ワークフロー定義**: [ghats](https://github.com/koki-develop/ghats) (TypeScript)
 - **ブラウザ自動化**: Playwright
 - **CI/CD**: GitHub Actions
 - **ローカルテスト**: [act](https://github.com/nektos/act)
@@ -60,7 +59,7 @@ sequenceDiagram
 
 - Gmail API
 - Google Calendar API
-- LINE Messaging API
+- Discord Webhook
 
 ## 📁 プロジェクト構成
 
@@ -68,11 +67,8 @@ sequenceDiagram
 LifeManageLLMAction/
 ├── .github/
 │   └── workflows/
-│       ├── src/
-│       │   └── booth-monitor.ts      # ghatsワークフロー定義
-│       ├── booth-monitor-test.yml    # テスト用ワークフロー
-│       ├── package.json
-│       └── tsconfig.json
+│       ├── booth-monitor.yml         # 本番用ワークフロー定義
+│       └── booth-monitor-test.yml    # テスト用ワークフロー
 ├── packages/
 │   └── booth-monitor/
 │       ├── src/
@@ -80,7 +76,7 @@ LifeManageLLMAction/
 │       │   ├── gmail/                # Gmail API操作
 │       │   ├── booth/                # BOOTHスクレイピング
 │       │   ├── calendar/             # Google Calendar操作
-│       │   ├── line/                 # LINE Messaging API
+│       │   ├── discord/              # Discord Webhook
 │       │   └── notification/         # 通知スケジューラ
 │       ├── tests/
 │       │   ├── unit/                 # 単体テスト
@@ -90,7 +86,8 @@ LifeManageLLMAction/
 │       ├── tsconfig.json
 │       └── vitest.config.ts
 ├── docs/
-│   └── ACT_TESTING.md                # actテストガイド
+│   ├── ACT_TESTING.md                # actテストガイド
+│   └── ENVIRONMENT_VARIABLES.md      # 環境変数設定ガイド
 ├── .prototools                       # protoバージョン管理
 ├── .moon/                            # moonrepo設定
 ├── package.json                      # ルートpackage.json
@@ -124,7 +121,7 @@ npm install
 
 ### 3. API認証情報の設定
 
-詳細は[実装計画書](/.gemini/antigravity/brain/650f80cd-4c6f-4141-8bc4-7920afd47025/implementation_plan.md)の「API認証設定ガイド」を参照してください。
+詳細は[実装計画書](/.gemini/antigravity/brain/650f80cd-4c6f-4141-8bc4-7920afd47025/implementation_plan.md)および[環境変数ガイド](docs/ENVIRONMENT_VARIABLES.md)を参照してください。
 
 #### 必要なシークレット
 
@@ -132,8 +129,7 @@ GitHub Secretsに以下を設定:
 
 - `GOOGLE_SERVICE_ACCOUNT_KEY`: Google Cloud サービスアカウントキー(JSON)
 - `GOOGLE_CALENDAR_ID`: カレンダーID
-- `LINE_CHANNEL_ACCESS_TOKEN`: LINE Channel Access Token
-- `LINE_USER_ID`: LINE送信先ユーザーID
+- `DISCORD_WEBHOOK_URL`: Discord Webhook URL
 
 #### 環境変数
 
@@ -173,13 +169,6 @@ moon run booth-monitor:build
 moon run booth-monitor:lint
 ```
 
-### ワークフロー生成
-
-```bash
-# ghatsでワークフローYAML生成
-npm run build:workflows
-```
-
 ## 🐳 GitHub Actionsのローカルテスト
 
 `act`を使用してGitHub Actionsワークフローをローカルでテストできます。
@@ -189,6 +178,7 @@ npm run build:workflows
 ```bash
 # Dockerを起動後
 act workflow_dispatch \
+  --container-architecture linux/amd64 \
   -W .github/workflows/booth-monitor-test.yml \
   --secret-file .secrets.act \
   --var BOOTH_SHOP_NAME=MAHA5JP \
@@ -207,32 +197,41 @@ act workflow_dispatch \
 - 依存関係インストール
 - 実装計画書作成
 
-### Phase 2: コアモジュール実装 🚧
+### Phase 2: コアモジュール実装 ✅
 - Gmail API連携モジュール
 - BOOTHスクレイピングモジュール
 - フィルタリングモジュール
 - Google Calendar連携モジュール
-- LINE Messaging API連携モジュール
+- Discord Webhook連携モジュール
 - 通知スケジューラモジュール
 
-### Phase 3: メインロジック統合 ⏳
-### Phase 4: GitHub Actions設定 🚧
-### Phase 5: 検証 ⏳
+### Phase 3: メインロジック統合 ✅
+- メインエントリーポイント実装
+- 統合ロジック
+- エラーハンドリング・ログ出力
+
+### Phase 4: GitHub Actions設定 ✅
+- ワークフロー定義 (手動YAML)
+- スケジュール設定
+- 環境変数ガイド
+
+### Phase 5: 動作検証 🚧
+- 自動テスト (ALL PASS)
+- ローカル動作確認手順整備
+- 本番動作確認
 
 ## 📚 ドキュメント
 
 - [実装計画書](/.gemini/antigravity/brain/650f80cd-4c6f-4141-8bc4-7920afd47025/implementation_plan.md)
 - [タスク管理](/.gemini/antigravity/brain/650f80cd-4c6f-4141-8bc4-7920afd47025/task.md)
+- [検証手順書](/.gemini/antigravity/brain/650f80cd-4c6f-4141-8bc4-7920afd47025/walkthrough.md)
 - [actテストガイド](docs/ACT_TESTING.md)
+- [環境変数ガイド](docs/ENVIRONMENT_VARIABLES.md)
 
 ## 🤝 コントリビューション
 
 このプロジェクトはTDD、Conventional Commits、moonrepoを採用しています。
-詳細は[ユーザールール](/.gemini/antigravity/brain/650f80cd-4c6f-4141-8bc4-7920afd47025/implementation_plan.md)を参照してください。
 
 ## 📄 ライセンス
 
 MIT License
-
-
-

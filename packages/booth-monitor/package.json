@@ -14,7 +14,6 @@
     "@actions/core": "^1.11.1",
     "@actions/github": "^6.0.0",
     "@google-cloud/local-auth": "^3.0.1",
-    "@line/bot-sdk": "^9.4.0",
     "googleapis": "^144.0.0",
     "playwright": "^1.49.1",
     "zod": "^3.24.1"
