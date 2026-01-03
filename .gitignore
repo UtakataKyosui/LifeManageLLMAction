@@ -1,0 +1,17 @@
+
+# moon
+.moon/cache
+.moon/docker
+
+# Node.js
+node_modules/
+dist/
+*.log
+
+# act (GitHub Actions local testing)
+.env.act
+.secrets.act
+
+# IDE
+.vscode/
+.idea/
