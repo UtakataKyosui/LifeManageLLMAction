@@ -12,8 +12,7 @@ GitHub Actionsで使用するシークレットです。リポジトリの Setti
 |---------|------|---------|
 | `GOOGLE_SERVICE_ACCOUNT_KEY` | Google Cloud サービスアカウントキー(JSON全体) | [Google Cloud Console](https://console.cloud.google.com/) でサービスアカウントを作成し、JSONキーをダウンロード |
 | `GOOGLE_CALENDAR_ID` | カレンダーID | Google Calendarの設定から「カレンダーの統合」セクションで確認 |
-| `LINE_CHANNEL_ACCESS_TOKEN` | LINE Channel Access Token | [LINE Developers](https://developers.line.biz/) でMessaging APIチャネルを作成し、Channel access tokenを発行 |
-| `LINE_USER_ID` | LINE送信先ユーザーID | LINEアカウントのUser IDを取得（後述） |
+| `DISCORD_WEBHOOK_URL` | Discord Webhook URL | Discordチャンネル設定からWebhookを作成してURLをコピー |
 
 ### GitHub Variables (本番環境)
 
@@ -65,48 +64,22 @@ BOOTH_KEYWORDS=音成モカ,オトナリモカ
 3. 「カレンダーの統合」セクションの「カレンダーID」をコピー
 4. サービスアカウントのメールアドレスをカレンダーに共有（編集権限）
 
-```bash
-# 自分にテストメッセージを送信してUser IDを確認
-# まず、自分のUser IDを推測して送信してみる
-curl -X POST https://api.line.me/v2/bot/message/push \
-  -H 'Content-Type: application/json' \
-  -H 'Authorization: Bearer {Channel Access Token}' \
-  -d '{
-    "to": "U...",
-    "messages": [{"type": "text", "text": "test"}]
-  }'
-```
+### Discord通知が届かない
 
-## actテスト用環境変数
-
-actでのローカルテストには、`.secrets.act`ファイルを使用します（既に作成済み）。
-
-```bash
-# .secrets.act
-GOOGLE_SERVICE_ACCOUNT_KEY=dummy_service_account_key
-GOOGLE_CALENDAR_ID=dummy_calendar_id
-LINE_CHANNEL_ACCESS_TOKEN=dummy_line_token
-LINE_USER_ID=dummy_user_id
-```
-
-actテスト時は、これらのダミー値で環境変数の設定が正しく行われるかを確認できます。
-
-## トラブルシューティング
-
-### Gmail APIのアクセス権限エラー
-
-サービスアカウントでGmail APIを使用するには、Google Workspace管理者による設定が必要です。
-個人アカウントの場合は、OAuth 2.0を使用する必要があります。
-
-### LINE通知が届かない
-
-1. Channel Access Tokenが正しいか確認
-2. User IDが正しいか確認
-3. LINEアカウントがチャネルと友だちになっているか確認
-4. Webhook設定が正しいか確認
+1. Webhook URLが正しいか確認
+2. GitHub Secretsに `DISCORD_WEBHOOK_URL` が正しく設定されているか確認
 
 ### Google Calendarにイベントが作成されない
 
 1. サービスアカウントのメールアドレスがカレンダーに共有されているか確認
 2. 共有権限が「編集権限」になっているか確認
 3. Calendar APIが有効化されているか確認
+
+### "API has not been used in project" エラー
+
+Google Cloud ConsoleでAPIが無効になっている場合に発生します。
+エラーメッセージに表示されるURL、または以下の手順で有効化してください：
+
+1. [Google Cloud Console APIライブラリ](https://console.cloud.google.com/apis/library)にアクセス
+2. 使用しているプロジェクトを選択
+3. **Gmail API** と **Google Calendar API** を検索し、「有効にする」をクリック
