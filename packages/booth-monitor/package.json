@@ -8,7 +8,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
-    "lint": "eslint src --fix"
+    "lint": "eslint src --fix",
+    "token:gen": "npx tsx scripts/get-refresh-token.ts"
   },
   "dependencies": {
     "@actions/core": "^1.11.1",

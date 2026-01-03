@@ -21,18 +21,11 @@ async function run(): Promise<void> {
 
         core.info('🚀 Starting BOOTH Monitor...');
 
-        // Debug: Check if keys are present (masked)
-        if (process.env.GOOGLE_SERVICE_ACCOUNT_KEY) {
-            core.info('🔑 GOOGLE_SERVICE_ACCOUNT_KEY is set');
-            try {
-                const key = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_KEY);
-                core.info(`   Project ID: ${key.project_id}`);
-                core.info(`   Client Email: ${key.client_email}`);
-            } catch (e) {
-                core.error('❌ Failed to parse GOOGLE_SERVICE_ACCOUNT_KEY JSON');
-            }
+        // Debug: Check if keys are set (masked)
+        if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_REFRESH_TOKEN) {
+            core.info('🔑 GOOGLE_CLIENT_ID and GOOGLE_REFRESH_TOKEN are set');
         } else {
-            core.error('❌ GOOGLE_SERVICE_ACCOUNT_KEY is NOT set');
+            core.error('❌ GOOGLE_CLIENT_ID or GOOGLE_REFRESH_TOKEN is NOT set');
         }
 
         // 1. Gmail Initialization

@@ -4,17 +4,19 @@ export class GmailClient {
     private gmail: gmail_v1.Gmail;
 
     constructor() {
-        const serviceAccountKey = process.env.GOOGLE_SERVICE_ACCOUNT_KEY;
+        const clientId = process.env.GOOGLE_CLIENT_ID;
+        const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
+        const refreshToken = process.env.GOOGLE_REFRESH_TOKEN;
 
-        if (!serviceAccountKey) {
-            throw new Error('GOOGLE_SERVICE_ACCOUNT_KEY is not set');
+        if (!clientId || !clientSecret || !refreshToken) {
+            throw new Error('GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, or GOOGLE_REFRESH_TOKEN is not set');
         }
 
-        const auth = new google.auth.GoogleAuth({
-            credentials: JSON.parse(serviceAccountKey),
-            scopes: ['https://www.googleapis.com/auth/gmail.modify'],
-        });
-        this.gmail = google.gmail({ version: 'v1', auth });
+        const oauth2Client = new google.auth.OAuth2(clientId, clientSecret);
+        oauth2Client.setCredentials({ refresh_token: refreshToken });
+
+        // @ts-expect-error auth type mismatch
+        this.gmail = google.gmail({ version: 'v1', auth: oauth2Client });
     }
 
     /**

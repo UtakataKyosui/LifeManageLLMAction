@@ -127,7 +127,9 @@ npm install
 
 GitHub Secretsに以下を設定:
 
-- `GOOGLE_SERVICE_ACCOUNT_KEY`: Google Cloud サービスアカウントキー(JSON)
+- `GOOGLE_CLIENT_ID`: OAuth 2.0 Client ID
+- `GOOGLE_CLIENT_SECRET`: OAuth 2.0 Client Secret
+- `GOOGLE_REFRESH_TOKEN`: OAuth 2.0 Refresh Token
 - `GOOGLE_CALENDAR_ID`: カレンダーID
 - `DISCORD_WEBHOOK_URL`: Discord Webhook URL
 

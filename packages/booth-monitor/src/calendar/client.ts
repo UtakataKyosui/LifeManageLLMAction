@@ -17,20 +17,22 @@ export class CalendarClient {
     private calendarId: string;
 
     constructor() {
-        const serviceAccountKey = process.env.GOOGLE_SERVICE_ACCOUNT_KEY;
+        const clientId = process.env.GOOGLE_CLIENT_ID;
+        const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
+        const refreshToken = process.env.GOOGLE_REFRESH_TOKEN;
         const calendarId = process.env.GOOGLE_CALENDAR_ID;
 
-        if (!serviceAccountKey || !calendarId) {
+        if (!clientId || !clientSecret || !refreshToken || !calendarId) {
             throw new Error(
-                'GOOGLE_SERVICE_ACCOUNT_KEY or GOOGLE_CALENDAR_ID is not set'
+                'GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REFRESH_TOKEN or GOOGLE_CALENDAR_ID is not set'
             );
         }
 
-        const auth = new google.auth.GoogleAuth({
-            credentials: JSON.parse(serviceAccountKey),
-            scopes: ['https://www.googleapis.com/auth/calendar'],
-        });
-        this.calendar = google.calendar({ version: 'v3', auth });
+        const oauth2Client = new google.auth.OAuth2(clientId, clientSecret);
+        oauth2Client.setCredentials({ refresh_token: refreshToken });
+
+        // @ts-expect-error auth type mismatch in googleapis, but this works
+        this.calendar = google.calendar({ version: 'v3', auth: oauth2Client });
         this.calendarId = calendarId;
     }
 

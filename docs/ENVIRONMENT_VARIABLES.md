@@ -10,7 +10,9 @@ GitHub Actionsで使用するシークレットです。リポジトリの Setti
 
 | Secret名 | 説明 | 取得方法 |
 |---------|------|---------|
-| `GOOGLE_SERVICE_ACCOUNT_KEY` | Google Cloud サービスアカウントキー(JSON全体) | [Google Cloud Console](https://console.cloud.google.com/) でサービスアカウントを作成し、JSONキーをダウンロード |
+| `GOOGLE_CLIENT_ID` | OAuth 2.0 Client ID | Google Cloud Console の「認証情報」から作成 |
+| `GOOGLE_CLIENT_SECRET` | OAuth 2.0 Client Secret | 同上 |
+| `GOOGLE_REFRESH_TOKEN` | OAuth 2.0 Refresh Token | プロジェクト内スクリプト `npm run token:gen` で生成 |
 | `GOOGLE_CALENDAR_ID` | カレンダーID | Google Calendarの設定から「カレンダーの統合」セクションで確認 |
 | `DISCORD_WEBHOOK_URL` | Discord Webhook URL | Discordチャンネル設定からWebhookを作成してURLをコピー |
 
@@ -44,18 +46,42 @@ BOOTH_KEYWORDS=音成モカ,オトナリモカ
 
 ### 1. Google Cloud Platform
 
-#### サービスアカウントの作成
+#### OAuth 2.0 Client IDの作成
 
 1. [Google Cloud Console](https://console.cloud.google.com/)にアクセス
-2. プロジェクトを作成または選択
-3. 「APIとサービス」→「ライブラリ」で以下を有効化:
-   - Gmail API
-   - Google Calendar API
-4. 「APIとサービス」→「認証情報」→「認証情報を作成」→「サービスアカウント」
-5. サービスアカウント名を入力（例: `booth-monitor`）
-6. 作成したサービスアカウントをクリック
-7. 「キー」タブ→「鍵を追加」→「新しい鍵を作成」→「JSON」
-8. ダウンロードしたJSONファイルの内容全体を`GOOGLE_SERVICE_ACCOUNT_KEY`に設定
+2. プロジェクトを選択 (`98677992892`)
+3. 「APIとサービス」→「OAuth同意画面」を設定
+   - User Type: **External** (外部)
+   - アプリ情報: 任意に入力
+   - テストユーザー: **自分のGoogleアカウントを追加** (必須)
+4. 「APIとサービス」→「認証情報」→「認証情報を作成」→「OAuth クライアント ID」
+   - アプリケーションの種類: **Web アプリケーション**
+   - 名前: 任意 (例: `booth-monitor-client`)
+   - 承認済みのリダイレクト URI: **`http://localhost`** を追加 (トレイリングスラッシュなし)
+5. 作成後、**クライアント ID** と **クライアント シークレット** を控える
+
+#### リフレッシュトークンの取得
+
+プロジェクトに含まれるスクリプトを使用してリフレッシュトークンを取得します。
+
+1. ローカル環境で以下のコマンドを実行:
+   ```bash
+   npm run token:gen
+   ```
+2. プロンプトに従って `Client ID` と `Client Secret` を入力
+3. 生成されたURLにブラウザでアクセスし、自分のアカウントでログイン・許可
+   - 「このアプリはGoogleで確認されていません」と出た場合は「詳細」→「(安全ではないページ)に移動」を選択
+4. リダイレクトされたURL (`http://localhost/?code=...`) から `code=` の後ろの文字列をコピー
+5. コンソールに貼り付けてEnter
+6. 表示された `GOOGLE_REFRESH_TOKEN` を控える
+
+#### GitHub Secretsへの設定
+
+取得した以下の3つをGitHub Secretsに設定してください。
+
+- `GOOGLE_CLIENT_ID`
+- `GOOGLE_CLIENT_SECRET`
+- `GOOGLE_REFRESH_TOKEN`
 
 #### カレンダーIDの取得
 
