@@ -1,0 +1,19 @@
+{
+    "name": "@life-manage/workflows",
+    "version": "0.1.0",
+    "type": "module",
+    "private": true,
+    "scripts": {
+        "build": "ghats build",
+        "build:all": "npm run build"
+    },
+    "dependencies": {
+        "ghats": "latest"
+    },
+    "devDependencies": {
+        "@swc-node/register": "^1.10.9",
+        "@types/node": "^22.10.5",
+        "tsx": "^4.19.2",
+        "typescript": "^5.7.2"
+    }
+}
